@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: ['Integration Tests']
+    branches:
+      - main
+      - 'releases/*'
+    types: 
+      - completed
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Setup Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 20
+      - run: npm install --save-dev semantic-release-major-tag
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

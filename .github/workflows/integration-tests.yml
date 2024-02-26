@@ -1,0 +1,163 @@
+name: Integration Tests
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['CI']
+    branches:
+      - main
+      - 'releases/*'
+    types: 
+      - completed
+  schedule:
+    - cron: '0 22 * * 3'
+
+jobs:
+  integration-tests:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Generate GitHub App Token
+        uses: electron/github-app-auth-action@384fd19694fe7b6dcc9a684746c6976ad78228ae # v1.1.1
+        id: generate-token
+        with:
+          creds: ${{ secrets.GH_APP_CREDS }}
+
+      - name: Make changes to commit and stage them
+        run: |
+          date > current-date.txt
+          echo 'foobar' > README.md
+          git add current-date.txt
+          git add README.md
+          git rm LICENSE
+          git add --chmod=+x src/lib.ts
+
+      - name: Commit to new ref
+        uses: ./
+        id: commit-new-ref
+        with:
+          message: Test new ref commit
+          ref: integration-test-playground-${{ github.run_id }}-${{ github.run_number }}
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Confirm new ref commit
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const assert = require('node:assert');
+
+            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.commit-new-ref.outputs.sha }}'];
+
+            // Fetch the commit by both ref and sha
+            for (const ref of refs) {
+              const { data } = await github.rest.repos.getCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
+              });
+
+              assert.strictEqual(data.sha, '${{ steps.commit-new-ref.outputs.sha }}', 'Expected sha for commit to match');
+              assert.strictEqual(data.commit.message, 'Test new ref commit', 'Expected commit message to match');
+              assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
+            }
+
+      - name: Update checkout
+        run: |
+          git fetch
+          git checkout integration-test-playground-${{ github.run_id }}-${{ github.run_number }}
+
+      - name: Make changes to commit and stage them
+        run: |
+          date > current-date.txt
+          echo 'baz' > README.md
+          git add current-date.txt
+          git add README.md
+          git rm .prettierignore
+          git add --chmod=+x src/main.ts
+
+      - name: Update existing ref
+        uses: ./
+        id: update-existing-ref
+        with:
+          message: Test updating existing ref
+          ref: integration-test-playground-${{ github.run_id }}-${{ github.run_number }}
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Confirm existing ref commit
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const assert = require('node:assert');
+
+            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.update-existing-ref.outputs.sha }}'];
+
+            // Fetch the commit by both ref and sha
+            for (const ref of refs) {
+              const { data } = await github.rest.repos.getCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
+              });
+
+              assert.strictEqual(data.sha, '${{ steps.update-existing-ref.outputs.sha }}', 'Expected sha for commit to match');
+              assert.strictEqual(data.commit.message, 'Test updating existing ref', 'Expected commit message to match');
+              assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
+            }
+
+      - name: Update checkout
+        run: git pull
+
+      - name: Make more changes to commit and stage them
+        run: |
+          date > current-date.txt
+          git add current-date.txt
+
+      - name: Update existing ref (again)
+        uses: ./
+        id: update-existing-ref-2
+        with:
+          message: Test updating existing ref (again)
+          ref: integration-test-playground-${{ github.run_id }}-${{ github.run_number }}
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Confirm existing ref commit
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const assert = require('node:assert');
+
+            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.update-existing-ref-2.outputs.sha }}'];
+
+            // Fetch the commit by both ref and sha
+            for (const ref of refs) {
+              const { data } = await github.rest.repos.getCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
+              });
+
+              assert.strictEqual(data.sha, '${{ steps.update-existing-ref-2.outputs.sha }}', 'Expected sha for commit to match');
+              assert.strictEqual(data.commit.message, 'Test updating existing ref (again)', 'Expected commit message to match');
+              assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
+            }
+
+      - name: Clean up new ref
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        if: ${{ steps.generate-token.outputs.token }}
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            await github.rest.git.deleteRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'heads/integration-test-playground-${{ github.run_id }}-${{ github.run_number }}'
+            });

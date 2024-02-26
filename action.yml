@@ -1,0 +1,26 @@
+name: GitHub App Commit Action
+description: Makes it simple to make verified Git commits as a GitHub app
+author: David Sanders
+
+branding:
+  icon: git-commit
+  color: green
+
+inputs:
+  message:
+    description: The commit message
+    required: true
+  ref:
+    description: Git reference to associate the commit with (e.g. `main`). If it does not exist it will be created. Defaults to the the current checkout ref.
+    required: false
+  token:
+    description: The GitHub app installation token
+    required: true
+
+outputs:
+  sha:
+    description: SHA for the commit
+
+runs:
+  using: node20
+  main: dist/index.js
