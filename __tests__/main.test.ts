@@ -5,7 +5,7 @@ import { RequestError } from '@octokit/request-error';
 
 import * as lib from '../src/lib';
 import * as main from '../src/main';
-import { mockGetInput } from './utils';
+import { mockGetBooleanInput, mockGetInput } from './utils';
 
 const createCommit = jest.fn();
 const createRef = jest.fn();
@@ -255,6 +255,7 @@ describe('action', () => {
 
   it('errors if no changes to commit', async () => {
     mockGetInput({ message, token });
+    mockGetBooleanInput({ 'fail-on-no-changes': true });
     jest.mocked(lib.getStagedFiles).mockResolvedValue([]);
 
     await main.run();
@@ -263,6 +264,21 @@ describe('action', () => {
     expect(core.setFailed).toHaveBeenCalledTimes(1);
     expect(core.setFailed).toHaveBeenLastCalledWith(
       'No changes found to commit'
+    );
+  });
+
+  it('does not error if fail-on-no-changes is false', async () => {
+    mockGetInput({ message, token });
+    mockGetBooleanInput({ 'fail-on-no-changes': false });
+    jest.mocked(lib.getStagedFiles).mockResolvedValue([]);
+
+    await main.run();
+    expect(runSpy).toHaveReturned();
+
+    expect(core.setFailed).not.toHaveBeenCalled();
+    expect(core.notice).toHaveBeenCalledTimes(1);
+    expect(core.notice).toHaveBeenLastCalledWith(
+      'No changes found to commit - skipping'
     );
   });
 

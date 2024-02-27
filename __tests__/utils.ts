@@ -22,3 +22,9 @@ export function mockGetInput(inputs: Record<string, string>): void {
     .mocked(core.getInput)
     .mockImplementation(makeMockInputImplementation(inputs, ''));
 }
+
+export function mockGetBooleanInput(inputs: Record<string, boolean>): void {
+  jest
+    .mocked(core.getBooleanInput)
+    .mockImplementation(makeMockInputImplementation(inputs, false));
+}

@@ -59,6 +59,7 @@ jobs:
 
 ### Inputs
 
+- `fail-on-no-changes` - *(optional)* Whether or not to set action failure if there are no changes to commit (default: `true`)
 - `message` - **(required)** The commit message
 - `ref` - *(optional)* Git reference to associate the commit with (e.g. `main`). If it does not exist it will be created. Defaults to the the current checkout ref.
 - `token` - **(required)** GitHub App installation access token

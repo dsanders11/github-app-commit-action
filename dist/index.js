@@ -30365,9 +30365,15 @@ async function run() {
         const token = core.getInput('token', { required: true });
         // Optional inputs
         const ref = `heads/${core.getInput('ref') || (await (0, lib_1.getHeadRef)())}`;
+        const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
         const tree = await populateTree();
         if (tree.length === 0) {
-            core.setFailed('No changes found to commit');
+            if (failOnNoChanges) {
+                core.setFailed('No changes found to commit');
+            }
+            else {
+                core.notice('No changes found to commit - skipping');
+            }
             return;
         }
         const owner = github.context.repo.owner;

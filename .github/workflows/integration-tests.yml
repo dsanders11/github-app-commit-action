@@ -150,6 +150,19 @@ jobs:
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
             }
 
+      - name: Update checkout
+        run: |
+          git pull
+          git clean -fdx
+
+      - name: Optionally don't fail if no changes to commit
+        uses: ./
+        with:
+          fail-on-no-changes: false
+          message: Nothing to commit
+          ref: integration-test-playground-${{ github.run_id }}-${{ github.run_number }}
+          token: ${{ steps.generate-token.outputs.token }}
+
       - name: Clean up new ref
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         if: ${{ steps.generate-token.outputs.token }}

@@ -66,11 +66,16 @@ export async function run(): Promise<void> {
 
     // Optional inputs
     const ref = `heads/${core.getInput('ref') || (await getHeadRef())}`;
+    const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
 
     const tree = await populateTree();
 
     if (tree.length === 0) {
-      core.setFailed('No changes found to commit');
+      if (failOnNoChanges) {
+        core.setFailed('No changes found to commit');
+      } else {
+        core.notice('No changes found to commit - skipping');
+      }
       return;
     }
 
