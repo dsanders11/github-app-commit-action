@@ -51,7 +51,7 @@ jobs:
           echo 'Hello World' > hello-world.txt
           git add hello-world.txt
       - name: Commit
-        uses: dsanders11/github-app-commit-action@main
+        uses: dsanders11/github-app-commit-action@v1
         with:
           message: 'feat: my changes'
           token: ${{ steps.generate-token.outputs.token }}
