@@ -67,6 +67,7 @@ export async function run(): Promise<void> {
     // Optional inputs
     const ref = `heads/${core.getInput('ref') || (await getHeadRef())}`;
     const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
+    const force = core.getBooleanInput('force');
 
     const tree = await populateTree();
 
@@ -105,7 +106,8 @@ export async function run(): Promise<void> {
         owner,
         repo,
         ref,
-        sha: newCommit.data.sha
+        sha: newCommit.data.sha,
+        force
       });
       core.debug(`Updated ref: ${ref} to ${newCommit.data.sha}`);
     } catch (err) {

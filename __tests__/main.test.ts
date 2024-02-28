@@ -97,6 +97,7 @@ describe('action', () => {
     const headTreeHash = 'head-tree-hash';
 
     mockGetInput({ message, token });
+    mockGetBooleanInput({});
     jest.mocked(lib.getHeadRef).mockResolvedValue(ref);
     jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
     jest.mocked(lib.getHeadTreeHash).mockResolvedValue(headTreeHash);
@@ -123,7 +124,8 @@ describe('action', () => {
     expect(updateRef).toHaveBeenCalledWith(
       expect.objectContaining({
         sha: commitSha,
-        ref: `heads/${ref}`
+        ref: `heads/${ref}`,
+        force: false
       })
     );
 
@@ -137,6 +139,7 @@ describe('action', () => {
     const headTreeHash = 'head-tree-hash';
 
     mockGetInput({ message, token, ref });
+    mockGetBooleanInput({});
     jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
     jest.mocked(lib.getHeadTreeHash).mockResolvedValue(headTreeHash);
     jest.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
@@ -162,7 +165,8 @@ describe('action', () => {
     expect(updateRef).toHaveBeenCalledWith(
       expect.objectContaining({
         sha: commitSha,
-        ref: `heads/${ref}`
+        ref: `heads/${ref}`,
+        force: false
       })
     );
 
@@ -218,7 +222,8 @@ describe('action', () => {
     expect(updateRef).toHaveBeenCalledWith(
       expect.objectContaining({
         sha: commitSha,
-        ref: `heads/${ref}`
+        ref: `heads/${ref}`,
+        force: false
       })
     );
     expect(createRef).toHaveBeenCalledWith(
@@ -280,6 +285,32 @@ describe('action', () => {
     expect(core.notice).toHaveBeenLastCalledWith(
       'No changes found to commit - skipping'
     );
+  });
+
+  it('can force an update', async () => {
+    const ref = 'main';
+    const commitSha = 'commit-sha';
+
+    mockGetInput({ message, token });
+    mockGetBooleanInput({ force: true });
+    jest.mocked(lib.getHeadRef).mockResolvedValue(ref);
+    jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    jest.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    jest.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    jest.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    jest.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    jest.mocked(updateRef).mockResolvedValue({ data: {} });
+
+    await main.run();
+    expect(runSpy).toHaveReturned();
+
+    expect(lib.getHeadRef).toHaveBeenCalled();
+    expect(updateRef).toHaveBeenCalledWith(
+      expect.objectContaining({
+        force: true
+      })
+    );
+    expect(createRef).not.toHaveBeenCalled();
   });
 
   it('handles generic errors', async () => {

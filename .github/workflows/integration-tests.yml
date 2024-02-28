@@ -23,6 +23,10 @@ jobs:
         id: checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
+      - name: Make note of the branch name
+        id: branch-name
+        run: echo "BRANCH=$(git rev-parse --abbrev-ref HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Generate GitHub App Token
         uses: electron/github-app-auth-action@384fd19694fe7b6dcc9a684746c6976ad78228ae # v1.1.1
         id: generate-token
@@ -154,6 +158,7 @@ jobs:
         run: |
           git pull
           git clean -fdx
+          git restore .
 
       - name: Optionally don't fail if no changes to commit
         uses: ./
@@ -163,9 +168,48 @@ jobs:
           ref: integration-test-playground-${{ github.run_id }}-${{ github.run_number }}
           token: ${{ steps.generate-token.outputs.token }}
 
+      - name: Switch back to base branch
+        run: git switch ${{ steps.branch-name.outputs.BRANCH }}
+
+      - name: Make changes to commit and stage them
+        run: |
+          date +%s%3N > current-date.txt
+          git add current-date.txt
+
+      - name: Update existing ref (force)
+        uses: ./
+        id: force-update-existing-ref
+        with:
+          force: true
+          message: Test updating existing ref (force)
+          ref: integration-test-playground-${{ github.run_id }}-${{ github.run_number }}
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Confirm forced commit
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const assert = require('node:assert');
+
+            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.force-update-existing-ref.outputs.sha }}'];
+
+            // Fetch the commit by both ref and sha
+            for (const ref of refs) {
+              const { data } = await github.rest.repos.getCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
+              });
+
+              assert.strictEqual(data.sha, '${{ steps.force-update-existing-ref.outputs.sha }}', 'Expected sha for commit to match');
+              assert.strictEqual(data.commit.message, 'Test updating existing ref (force)', 'Expected commit message to match');
+              assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
+            }
+
       - name: Clean up new ref
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        if: ${{ steps.generate-token.outputs.token }}
+        if: ${{ always() && steps.generate-token.outputs.token }}
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |

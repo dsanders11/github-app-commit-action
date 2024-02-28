@@ -30366,6 +30366,7 @@ async function run() {
         // Optional inputs
         const ref = `heads/${core.getInput('ref') || (await (0, lib_1.getHeadRef)())}`;
         const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
+        const force = core.getBooleanInput('force');
         const tree = await populateTree();
         if (tree.length === 0) {
             if (failOnNoChanges) {
@@ -30399,7 +30400,8 @@ async function run() {
                 owner,
                 repo,
                 ref,
-                sha: newCommit.data.sha
+                sha: newCommit.data.sha,
+                force
             });
             core.debug(`Updated ref: ${ref} to ${newCommit.data.sha}`);
         }
