@@ -30403,6 +30403,7 @@ async function run() {
                 sha: newCommit.data.sha,
                 force
             });
+            core.setOutput('ref-operation', 'updated');
             core.debug(`Updated ref: ${ref} to ${newCommit.data.sha}`);
         }
         catch (err) {
@@ -30415,6 +30416,7 @@ async function run() {
                     ref: `refs/${ref}`,
                     sha: newCommit.data.sha
                 });
+                core.setOutput('ref-operation', 'created');
                 core.debug(`Created ref: ${ref} at ${newCommit.data.sha}`);
             }
             else {

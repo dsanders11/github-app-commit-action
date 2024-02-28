@@ -72,6 +72,7 @@ jobs:
                 ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
               });
 
+              assert.strictEqual('${{ steps.commit-new-ref.outputs.ref-operation }}', 'created', 'Expected correct ref operation');
               assert.strictEqual(data.sha, '${{ steps.commit-new-ref.outputs.sha }}', 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, 'Test new ref commit', 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
@@ -116,6 +117,7 @@ jobs:
                 ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
               });
 
+              assert.strictEqual('${{ steps.update-existing-ref.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
               assert.strictEqual(data.sha, '${{ steps.update-existing-ref.outputs.sha }}', 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, 'Test updating existing ref', 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
@@ -154,6 +156,7 @@ jobs:
                 ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
               });
 
+              assert.strictEqual('${{ steps.update-existing-ref-2.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
               assert.strictEqual(data.sha, '${{ steps.update-existing-ref-2.outputs.sha }}', 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, 'Test updating existing ref (again)', 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
@@ -207,6 +210,7 @@ jobs:
                 ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
               });
 
+              assert.strictEqual('${{ steps.force-update-existing-ref.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
               assert.strictEqual(data.sha, '${{ steps.force-update-existing-ref.outputs.sha }}', 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, 'Test updating existing ref (force)', 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');

@@ -109,6 +109,7 @@ export async function run(): Promise<void> {
         sha: newCommit.data.sha,
         force
       });
+      core.setOutput('ref-operation', 'updated');
       core.debug(`Updated ref: ${ref} to ${newCommit.data.sha}`);
     } catch (err) {
       if (
@@ -122,6 +123,7 @@ export async function run(): Promise<void> {
           ref: `refs/${ref}`,
           sha: newCommit.data.sha
         });
+        core.setOutput('ref-operation', 'created');
         core.debug(`Created ref: ${ref} at ${newCommit.data.sha}`);
       } else {
         throw err;

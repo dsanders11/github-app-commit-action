@@ -77,6 +77,7 @@ describe('action', () => {
     expect(core.setFailed).toHaveBeenLastCalledWith(
       'Input required and not supplied: message'
     );
+    expect(core.setOutput).not.toHaveBeenCalled();
   });
 
   it('requires the token input', async () => {
@@ -89,6 +90,7 @@ describe('action', () => {
     expect(core.setFailed).toHaveBeenLastCalledWith(
       'Input required and not supplied: token'
     );
+    expect(core.setOutput).not.toHaveBeenCalled();
   });
 
   it('defaults to HEAD ref', async () => {
@@ -129,8 +131,9 @@ describe('action', () => {
       })
     );
 
-    expect(core.setOutput).toHaveBeenCalledTimes(1);
-    expect(core.setOutput).toHaveBeenLastCalledWith('sha', commitSha);
+    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'updated');
+    expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
 
   it('uses user-supplied ref', async () => {
@@ -170,8 +173,9 @@ describe('action', () => {
       })
     );
 
-    expect(core.setOutput).toHaveBeenCalledTimes(1);
-    expect(core.setOutput).toHaveBeenLastCalledWith('sha', commitSha);
+    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'updated');
+    expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
 
   it('updates existing ref', async () => {
@@ -193,6 +197,10 @@ describe('action', () => {
     expect(lib.getHeadRef).toHaveBeenCalled();
     expect(updateRef).toHaveBeenCalled();
     expect(createRef).not.toHaveBeenCalled();
+
+    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'updated');
+    expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
 
   it('creates new ref', async () => {
@@ -232,6 +240,10 @@ describe('action', () => {
         ref: `refs/heads/${ref}`
       })
     );
+
+    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'created');
+    expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
 
   it('rethrows other errors on updateRef', async () => {
@@ -256,6 +268,7 @@ describe('action', () => {
 
     expect(core.setFailed).toHaveBeenCalledTimes(1);
     expect(core.setFailed).toHaveBeenLastCalledWith('Server error');
+    expect(core.setOutput).not.toHaveBeenCalled();
   });
 
   it('errors if no changes to commit', async () => {
@@ -270,6 +283,7 @@ describe('action', () => {
     expect(core.setFailed).toHaveBeenLastCalledWith(
       'No changes found to commit'
     );
+    expect(core.setOutput).not.toHaveBeenCalled();
   });
 
   it('does not error if fail-on-no-changes is false', async () => {
@@ -285,6 +299,7 @@ describe('action', () => {
     expect(core.notice).toHaveBeenLastCalledWith(
       'No changes found to commit - skipping'
     );
+    expect(core.setOutput).not.toHaveBeenCalled();
   });
 
   it('can force an update', async () => {
@@ -311,6 +326,10 @@ describe('action', () => {
       })
     );
     expect(createRef).not.toHaveBeenCalled();
+
+    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'updated');
+    expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
 
   it('handles generic errors', async () => {
@@ -324,6 +343,7 @@ describe('action', () => {
 
     expect(core.setFailed).toHaveBeenCalledTimes(1);
     expect(core.setFailed).toHaveBeenLastCalledWith('Server error');
+    expect(core.setOutput).not.toHaveBeenCalled();
   });
 
   it('stringifies non-errors', async () => {
@@ -337,6 +357,7 @@ describe('action', () => {
 
     expect(core.setFailed).toHaveBeenCalledTimes(1);
     expect(core.setFailed).toHaveBeenLastCalledWith('42');
+    expect(core.setOutput).not.toHaveBeenCalled();
   });
 });
 

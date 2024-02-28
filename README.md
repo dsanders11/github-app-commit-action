@@ -68,6 +68,7 @@ jobs:
 
 ### Outputs
 
+- `ref-operation` - Which operation was performed on the ref: `created` or `updated`. Has no value if there were no changes to commit.
 - `sha` - SHA for the commit
 
 ## License
