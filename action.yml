@@ -26,6 +26,10 @@ inputs:
     required: true
 
 outputs:
+  message:
+    description: The commit message
+  ref:
+    description: The associated Git reference
   ref-operation:
     description: 'Which operation was performed on the ref: `created` or `updated`. Has no value if there were no changes to commit.'
   sha:

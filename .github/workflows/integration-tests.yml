@@ -62,6 +62,7 @@ jobs:
           script: |
             const assert = require('node:assert');
 
+            const message = 'Test new ref commit';
             const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.commit-new-ref.outputs.sha }}'];
 
             // Fetch the commit by both ref and sha
@@ -69,12 +70,14 @@ jobs:
               const { data } = await github.rest.repos.getCommit({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
+                ref,
               });
 
+              assert.strictEqual('${{ steps.commit-new-ref.outputs.message }}', message, 'Expected correct message output');
+              assert.strictEqual('${{ steps.commit-new-ref.outputs.ref }}', refs[0], 'Expected correct ref output');
               assert.strictEqual('${{ steps.commit-new-ref.outputs.ref-operation }}', 'created', 'Expected correct ref operation');
               assert.strictEqual(data.sha, '${{ steps.commit-new-ref.outputs.sha }}', 'Expected sha for commit to match');
-              assert.strictEqual(data.commit.message, 'Test new ref commit', 'Expected commit message to match');
+              assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
             }
 
@@ -107,6 +110,7 @@ jobs:
           script: |
             const assert = require('node:assert');
 
+            const message = 'Test updating existing ref';
             const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.update-existing-ref.outputs.sha }}'];
 
             // Fetch the commit by both ref and sha
@@ -114,12 +118,14 @@ jobs:
               const { data } = await github.rest.repos.getCommit({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
+                ref,
               });
 
+              assert.strictEqual('${{ steps.update-existing-ref.outputs.message }}', message, 'Expected correct message output');
+              assert.strictEqual('${{ steps.update-existing-ref.outputs.ref }}', refs[0], 'Expected correct ref output');
               assert.strictEqual('${{ steps.update-existing-ref.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
               assert.strictEqual(data.sha, '${{ steps.update-existing-ref.outputs.sha }}', 'Expected sha for commit to match');
-              assert.strictEqual(data.commit.message, 'Test updating existing ref', 'Expected commit message to match');
+              assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
             }
 
@@ -146,6 +152,7 @@ jobs:
           script: |
             const assert = require('node:assert');
 
+            const message = 'Test updating existing ref (again)';
             const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.update-existing-ref-2.outputs.sha }}'];
 
             // Fetch the commit by both ref and sha
@@ -153,12 +160,14 @@ jobs:
               const { data } = await github.rest.repos.getCommit({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
+                ref,
               });
 
+              assert.strictEqual('${{ steps.update-existing-ref-2.outputs.message }}', message, 'Expected correct message output');
+              assert.strictEqual('${{ steps.update-existing-ref-2.outputs.ref }}', refs[0], 'Expected correct ref output');
               assert.strictEqual('${{ steps.update-existing-ref-2.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
               assert.strictEqual(data.sha, '${{ steps.update-existing-ref-2.outputs.sha }}', 'Expected sha for commit to match');
-              assert.strictEqual(data.commit.message, 'Test updating existing ref (again)', 'Expected commit message to match');
+              assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
             }
 
@@ -200,6 +209,7 @@ jobs:
           script: |
             const assert = require('node:assert');
 
+            const message = 'Test updating existing ref (force)';
             const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.force-update-existing-ref.outputs.sha }}'];
 
             // Fetch the commit by both ref and sha
@@ -207,12 +217,14 @@ jobs:
               const { data } = await github.rest.repos.getCommit({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'integration-test-playground-${{ github.run_id }}-${{ github.run_number }}',
+                ref,
               });
 
+              assert.strictEqual('${{ steps.force-update-existing-ref.outputs.message }}', message, 'Expected correct message output');
+              assert.strictEqual('${{ steps.force-update-existing-ref.outputs.ref }}', refs[0], 'Expected correct ref output');
               assert.strictEqual('${{ steps.force-update-existing-ref.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
               assert.strictEqual(data.sha, '${{ steps.force-update-existing-ref.outputs.sha }}', 'Expected sha for commit to match');
-              assert.strictEqual(data.commit.message, 'Test updating existing ref (force)', 'Expected commit message to match');
+              assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
             }
 
