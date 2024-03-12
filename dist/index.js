@@ -30364,7 +30364,7 @@ async function run() {
         const message = core.getInput('message', { required: true });
         const token = core.getInput('token', { required: true });
         // Optional inputs
-        const ref = `heads/${core.getInput('ref') || (await (0, lib_1.getHeadRef)())}`;
+        const ref = core.getInput('ref') || (await (0, lib_1.getHeadRef)());
         const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
         const force = core.getBooleanInput('force');
         const tree = await populateTree();
@@ -30399,7 +30399,7 @@ async function run() {
             await octokit.rest.git.updateRef({
                 owner,
                 repo,
-                ref,
+                ref: `heads/${ref}`,
                 sha: newCommit.data.sha,
                 force
             });
@@ -30413,7 +30413,7 @@ async function run() {
                 await octokit.rest.git.createRef({
                     owner,
                     repo,
-                    ref: `refs/${ref}`,
+                    ref: `refs/heads/${ref}`,
                     sha: newCommit.data.sha
                 });
                 core.setOutput('ref-operation', 'created');
@@ -30423,6 +30423,8 @@ async function run() {
                 throw err;
             }
         }
+        core.setOutput('message', message);
+        core.setOutput('ref', ref);
         core.setOutput('sha', newCommit.data.sha);
     }
     catch (error) {

@@ -65,7 +65,7 @@ export async function run(): Promise<void> {
     const token = core.getInput('token', { required: true });
 
     // Optional inputs
-    const ref = `heads/${core.getInput('ref') || (await getHeadRef())}`;
+    const ref = core.getInput('ref') || (await getHeadRef());
     const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
     const force = core.getBooleanInput('force');
 
@@ -105,7 +105,7 @@ export async function run(): Promise<void> {
       await octokit.rest.git.updateRef({
         owner,
         repo,
-        ref,
+        ref: `heads/${ref}`,
         sha: newCommit.data.sha,
         force
       });
@@ -120,7 +120,7 @@ export async function run(): Promise<void> {
         await octokit.rest.git.createRef({
           owner,
           repo,
-          ref: `refs/${ref}`,
+          ref: `refs/heads/${ref}`,
           sha: newCommit.data.sha
         });
         core.setOutput('ref-operation', 'created');
@@ -130,6 +130,8 @@ export async function run(): Promise<void> {
       }
     }
 
+    core.setOutput('message', message);
+    core.setOutput('ref', ref);
     core.setOutput('sha', newCommit.data.sha);
   } catch (error) {
     // Fail the workflow run if an error occurs

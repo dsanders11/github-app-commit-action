@@ -131,7 +131,9 @@ describe('action', () => {
       })
     );
 
-    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledTimes(4);
+    expect(core.setOutput).toHaveBeenCalledWith('message', message);
+    expect(core.setOutput).toHaveBeenCalledWith('ref', ref);
     expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'updated');
     expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
@@ -173,7 +175,9 @@ describe('action', () => {
       })
     );
 
-    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledTimes(4);
+    expect(core.setOutput).toHaveBeenCalledWith('message', message);
+    expect(core.setOutput).toHaveBeenCalledWith('ref', ref);
     expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'updated');
     expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
@@ -198,7 +202,9 @@ describe('action', () => {
     expect(updateRef).toHaveBeenCalled();
     expect(createRef).not.toHaveBeenCalled();
 
-    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledTimes(4);
+    expect(core.setOutput).toHaveBeenCalledWith('message', message);
+    expect(core.setOutput).toHaveBeenCalledWith('ref', ref);
     expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'updated');
     expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
@@ -241,7 +247,9 @@ describe('action', () => {
       })
     );
 
-    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledTimes(4);
+    expect(core.setOutput).toHaveBeenCalledWith('message', message);
+    expect(core.setOutput).toHaveBeenCalledWith('ref', ref);
     expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'created');
     expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
@@ -327,7 +335,9 @@ describe('action', () => {
     );
     expect(createRef).not.toHaveBeenCalled();
 
-    expect(core.setOutput).toHaveBeenCalledTimes(2);
+    expect(core.setOutput).toHaveBeenCalledTimes(4);
+    expect(core.setOutput).toHaveBeenCalledWith('message', message);
+    expect(core.setOutput).toHaveBeenCalledWith('ref', ref);
     expect(core.setOutput).toHaveBeenCalledWith('ref-operation', 'updated');
     expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
