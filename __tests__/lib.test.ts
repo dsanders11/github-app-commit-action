@@ -1,18 +1,20 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
 import * as lib from '../src/lib';
 
-jest.mock('@actions/core');
-jest.mock('@actions/exec');
+vi.mock('@actions/core');
+vi.mock('@actions/exec');
 
 describe('getStagedFiles', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('parses git diff-index output', async () => {
-    jest.mocked(exec.getExecOutput).mockResolvedValue({
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
       exitCode: 0,
       stdout: `
 :100644 000000 f0dd2376c3d11c2cffa7509872ff1a4b740d77bb 0000000000000000000000000000000000000000 D	deleted-file
@@ -68,10 +70,12 @@ describe('getStagedFiles', () => {
   });
 
   it('is not silent in debug mode', async () => {
-    jest.mocked(core.isDebug).mockReturnValue(true);
-    jest
-      .mocked(exec.getExecOutput)
-      .mockResolvedValue({ exitCode: 0, stdout: '', stderr: '' });
+    vi.mocked(core.isDebug).mockReturnValue(true);
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
+      exitCode: 0,
+      stdout: '',
+      stderr: ''
+    });
 
     await lib.getStagedFiles();
 
@@ -87,11 +91,11 @@ describe('getStagedFiles', () => {
 
 describe('getHeadRef', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('strips prefix', async () => {
-    jest.mocked(exec.getExecOutput).mockResolvedValue({
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
       exitCode: 0,
       stdout: 'refs/heads/main',
       stderr: ''
@@ -101,7 +105,7 @@ describe('getHeadRef', () => {
   });
 
   it('trims output', async () => {
-    jest.mocked(exec.getExecOutput).mockResolvedValue({
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
       exitCode: 0,
       stdout: 'refs/heads/main\n',
       stderr: ''
@@ -111,7 +115,7 @@ describe('getHeadRef', () => {
   });
 
   it('throws an error on unexpected output', async () => {
-    jest.mocked(exec.getExecOutput).mockResolvedValue({
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
       exitCode: 0,
       stdout: 'foobar',
       stderr: ''
@@ -121,8 +125,8 @@ describe('getHeadRef', () => {
   });
 
   it('is not silent in debug mode', async () => {
-    jest.mocked(core.isDebug).mockReturnValue(true);
-    jest.mocked(exec.getExecOutput).mockResolvedValue({
+    vi.mocked(core.isDebug).mockReturnValue(true);
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
       exitCode: 0,
       stdout: 'refs/heads/main',
       stderr: ''
@@ -142,11 +146,11 @@ describe('getHeadRef', () => {
 
 describe('getHeadSha', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('trims output', async () => {
-    jest.mocked(exec.getExecOutput).mockResolvedValue({
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
       exitCode: 0,
       stdout: 'deadbeef\n',
       stderr: ''
@@ -156,10 +160,12 @@ describe('getHeadSha', () => {
   });
 
   it('is not silent in debug mode', async () => {
-    jest.mocked(core.isDebug).mockReturnValue(true);
-    jest
-      .mocked(exec.getExecOutput)
-      .mockResolvedValue({ exitCode: 0, stdout: 'sha', stderr: '' });
+    vi.mocked(core.isDebug).mockReturnValue(true);
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
+      exitCode: 0,
+      stdout: 'sha',
+      stderr: ''
+    });
 
     await lib.getHeadSha();
 
@@ -175,11 +181,11 @@ describe('getHeadSha', () => {
 
 describe('getHeadTreeHash', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('trims output', async () => {
-    jest.mocked(exec.getExecOutput).mockResolvedValue({
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
       exitCode: 0,
       stdout: 'deadbeef\n',
       stderr: ''
@@ -189,10 +195,12 @@ describe('getHeadTreeHash', () => {
   });
 
   it('is not silent in debug mode', async () => {
-    jest.mocked(core.isDebug).mockReturnValue(true);
-    jest
-      .mocked(exec.getExecOutput)
-      .mockResolvedValue({ exitCode: 0, stdout: 'sha', stderr: '' });
+    vi.mocked(core.isDebug).mockReturnValue(true);
+    vi.mocked(exec.getExecOutput).mockResolvedValue({
+      exitCode: 0,
+      stdout: 'sha',
+      stderr: ''
+    });
 
     await lib.getHeadTreeHash();
 

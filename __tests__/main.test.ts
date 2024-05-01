@@ -1,3 +1,5 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import * as fs from 'node:fs';
 
 import * as core from '@actions/core';
@@ -7,14 +9,14 @@ import * as lib from '../src/lib';
 import * as main from '../src/main';
 import { mockGetBooleanInput, mockGetInput } from './utils';
 
-const createCommit = jest.fn();
-const createRef = jest.fn();
-const createTree = jest.fn();
-const updateRef = jest.fn();
+const createCommit = vi.fn();
+const createRef = vi.fn();
+const createTree = vi.fn();
+const updateRef = vi.fn();
 
-jest.mock('node:fs');
-jest.mock('@actions/core');
-jest.mock('@actions/github', () => {
+vi.mock('node:fs');
+vi.mock('@actions/core');
+vi.mock('@actions/github', () => {
   return {
     context: {
       repo: {
@@ -22,7 +24,7 @@ jest.mock('@actions/github', () => {
         repo: 'electron'
       }
     },
-    getOctokit: jest.fn(() => ({
+    getOctokit: vi.fn(() => ({
       rest: {
         git: {
           createCommit,
@@ -34,7 +36,7 @@ jest.mock('@actions/github', () => {
     }))
   };
 });
-jest.mock('../src/lib');
+vi.mock('../src/lib');
 
 function createMockRequestError(message: string, statusCode: number): Error {
   const error = Object.create(RequestError.prototype);
@@ -46,7 +48,7 @@ function createMockRequestError(message: string, statusCode: number): Error {
 }
 
 // Spy the action's entrypoint
-const runSpy = jest.spyOn(main, 'run');
+const runSpy = vi.spyOn(main, 'run');
 
 describe('action', () => {
   const message = 'Test commit';
@@ -63,8 +65,8 @@ describe('action', () => {
   ];
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.mocked(lib.getHeadRef).mockReset();
+    vi.clearAllMocks();
+    vi.mocked(lib.getHeadRef).mockReset();
   });
 
   it('requires the message input', async () => {
@@ -100,13 +102,13 @@ describe('action', () => {
 
     mockGetInput({ message, token });
     mockGetBooleanInput({});
-    jest.mocked(lib.getHeadRef).mockResolvedValue(ref);
-    jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
-    jest.mocked(lib.getHeadTreeHash).mockResolvedValue(headTreeHash);
-    jest.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
-    jest.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
-    jest.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
-    jest.mocked(updateRef).mockResolvedValue({ data: {} });
+    vi.mocked(lib.getHeadRef).mockResolvedValue(ref);
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue(headTreeHash);
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockResolvedValue({ data: {} });
 
     await main.run();
     expect(runSpy).toHaveReturned();
@@ -145,12 +147,12 @@ describe('action', () => {
 
     mockGetInput({ message, token, ref });
     mockGetBooleanInput({});
-    jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
-    jest.mocked(lib.getHeadTreeHash).mockResolvedValue(headTreeHash);
-    jest.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
-    jest.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
-    jest.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
-    jest.mocked(updateRef).mockResolvedValue({ data: {} });
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue(headTreeHash);
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockResolvedValue({ data: {} });
 
     await main.run();
     expect(runSpy).toHaveReturned();
@@ -187,13 +189,13 @@ describe('action', () => {
     const commitSha = 'commit-sha';
 
     mockGetInput({ message, token });
-    jest.mocked(lib.getHeadRef).mockResolvedValue(ref);
-    jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
-    jest.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
-    jest.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
-    jest.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
-    jest.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
-    jest.mocked(updateRef).mockResolvedValue({ data: {} });
+    vi.mocked(lib.getHeadRef).mockResolvedValue(ref);
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockResolvedValue({ data: {} });
 
     await main.run();
     expect(runSpy).toHaveReturned();
@@ -214,20 +216,18 @@ describe('action', () => {
     const commitSha = 'commit-sha';
 
     mockGetInput({ message, token, ref });
-    jest.mocked(lib.getHeadRef).mockResolvedValue('main');
-    jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
-    jest.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
-    jest.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
-    jest.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
-    jest.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
-    jest
-      .mocked(updateRef)
-      .mockRejectedValue(
-        createMockRequestError(
-          'Reference does not exist - https://docs.github.com/rest/git/refs#update-a-reference',
-          422
-        )
-      );
+    vi.mocked(lib.getHeadRef).mockResolvedValue('main');
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockRejectedValue(
+      createMockRequestError(
+        'Reference does not exist - https://docs.github.com/rest/git/refs#update-a-reference',
+        422
+      )
+    );
 
     await main.run();
     expect(runSpy).toHaveReturned();
@@ -259,13 +259,13 @@ describe('action', () => {
     const commitSha = 'commit-sha';
 
     mockGetInput({ message, token, ref });
-    jest.mocked(lib.getHeadRef).mockResolvedValue('main');
-    jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
-    jest.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
-    jest.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
-    jest.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
-    jest.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
-    jest.mocked(updateRef).mockRejectedValue(new Error('Server error'));
+    vi.mocked(lib.getHeadRef).mockResolvedValue('main');
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockRejectedValue(new Error('Server error'));
 
     await main.run();
     expect(runSpy).toHaveReturned();
@@ -282,7 +282,7 @@ describe('action', () => {
   it('errors if no changes to commit', async () => {
     mockGetInput({ message, token });
     mockGetBooleanInput({ 'fail-on-no-changes': true });
-    jest.mocked(lib.getStagedFiles).mockResolvedValue([]);
+    vi.mocked(lib.getStagedFiles).mockResolvedValue([]);
 
     await main.run();
     expect(runSpy).toHaveReturned();
@@ -297,7 +297,7 @@ describe('action', () => {
   it('does not error if fail-on-no-changes is false', async () => {
     mockGetInput({ message, token });
     mockGetBooleanInput({ 'fail-on-no-changes': false });
-    jest.mocked(lib.getStagedFiles).mockResolvedValue([]);
+    vi.mocked(lib.getStagedFiles).mockResolvedValue([]);
 
     await main.run();
     expect(runSpy).toHaveReturned();
@@ -316,13 +316,13 @@ describe('action', () => {
 
     mockGetInput({ message, token });
     mockGetBooleanInput({ force: true });
-    jest.mocked(lib.getHeadRef).mockResolvedValue(ref);
-    jest.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
-    jest.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
-    jest.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
-    jest.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
-    jest.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
-    jest.mocked(updateRef).mockResolvedValue({ data: {} });
+    vi.mocked(lib.getHeadRef).mockResolvedValue(ref);
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockResolvedValue({ data: {} });
 
     await main.run();
     expect(runSpy).toHaveReturned();
@@ -344,7 +344,7 @@ describe('action', () => {
 
   it('handles generic errors', async () => {
     mockGetInput({ message, token });
-    jest.mocked(lib.getStagedFiles).mockImplementation(() => {
+    vi.mocked(lib.getStagedFiles).mockImplementation(() => {
       throw new Error('Server error');
     });
 
@@ -358,7 +358,7 @@ describe('action', () => {
 
   it('stringifies non-errors', async () => {
     mockGetInput({ message, token });
-    jest.mocked(lib.getStagedFiles).mockImplementation(() => {
+    vi.mocked(lib.getStagedFiles).mockImplementation(() => {
       throw 42; // eslint-disable-line no-throw-literal
     });
 
@@ -373,7 +373,7 @@ describe('action', () => {
 
 describe('populateTree', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should handle added files', async () => {
@@ -381,7 +381,7 @@ describe('populateTree', () => {
     const content = 'foobar';
     const mode = '100644';
 
-    jest.mocked(lib.getStagedFiles).mockResolvedValue([
+    vi.mocked(lib.getStagedFiles).mockResolvedValue([
       {
         change: 'A',
         filename,
@@ -391,7 +391,7 @@ describe('populateTree', () => {
         sha: 'e69de29bb2d1d6434b8b29ae775ad8c2e48c5391'
       }
     ]);
-    jest.mocked(fs.readFileSync).mockReturnValue(content);
+    vi.mocked(fs.readFileSync).mockReturnValue(content);
 
     await expect(main.populateTree()).resolves.toStrictEqual([
       {
@@ -407,7 +407,7 @@ describe('populateTree', () => {
     const filename = 'deleted-file';
     const mode = '100644';
 
-    jest.mocked(lib.getStagedFiles).mockResolvedValue([
+    vi.mocked(lib.getStagedFiles).mockResolvedValue([
       {
         change: 'D',
         filename,
@@ -433,7 +433,7 @@ describe('populateTree', () => {
     const content = 'foobar';
     const mode = '100644';
 
-    jest.mocked(lib.getStagedFiles).mockResolvedValue([
+    vi.mocked(lib.getStagedFiles).mockResolvedValue([
       {
         change: 'M',
         filename,
@@ -443,7 +443,7 @@ describe('populateTree', () => {
         sha: '6fa2e97fe3873cd173ba0428b1d14d307242b0ca'
       }
     ]);
-    jest.mocked(fs.readFileSync).mockReturnValue(content);
+    vi.mocked(fs.readFileSync).mockReturnValue(content);
 
     await expect(main.populateTree()).resolves.toStrictEqual([
       {
@@ -460,7 +460,7 @@ describe('populateTree', () => {
     const mode = '100755';
     const sha = '7cc89b60c3b63715e95b87d89c652ae6115b1d2f';
 
-    jest.mocked(lib.getStagedFiles).mockResolvedValue([
+    vi.mocked(lib.getStagedFiles).mockResolvedValue([
       {
         change: 'M',
         filename,
@@ -483,7 +483,7 @@ describe('populateTree', () => {
   });
 
   it('errors on unexpected mode for deleted file', async () => {
-    jest.mocked(lib.getStagedFiles).mockResolvedValue([
+    vi.mocked(lib.getStagedFiles).mockResolvedValue([
       {
         change: 'D',
         filename: 'deleted-file',
@@ -500,7 +500,7 @@ describe('populateTree', () => {
   });
 
   it('errors on unexpected mode for added file', async () => {
-    jest.mocked(lib.getStagedFiles).mockResolvedValue([
+    vi.mocked(lib.getStagedFiles).mockResolvedValue([
       {
         change: 'A',
         filename: 'added-file',

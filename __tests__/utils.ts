@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import * as core from '@actions/core';
 
 function makeMockInputImplementation<T>(
@@ -18,13 +20,13 @@ function makeMockInputImplementation<T>(
 }
 
 export function mockGetInput(inputs: Record<string, string>): void {
-  jest
-    .mocked(core.getInput)
-    .mockImplementation(makeMockInputImplementation(inputs, ''));
+  vi.mocked(core.getInput).mockImplementation(
+    makeMockInputImplementation(inputs, '')
+  );
 }
 
 export function mockGetBooleanInput(inputs: Record<string, boolean>): void {
-  jest
-    .mocked(core.getBooleanInput)
-    .mockImplementation(makeMockInputImplementation(inputs, false));
+  vi.mocked(core.getBooleanInput).mockImplementation(
+    makeMockInputImplementation(inputs, false)
+  );
 }
