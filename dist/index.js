@@ -30236,7 +30236,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getHeadTreeHash = exports.getHeadSha = exports.getHeadRef = exports.getStagedFiles = void 0;
+exports.getStagedFiles = getStagedFiles;
+exports.getHeadRef = getHeadRef;
+exports.getHeadSha = getHeadSha;
+exports.getHeadTreeHash = getHeadTreeHash;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -30250,7 +30253,6 @@ async function getStagedFiles() {
         return { oldMode, mode, oldSha, sha, change, filename };
     });
 }
-exports.getStagedFiles = getStagedFiles;
 async function getHeadRef() {
     const { stdout } = await exec.getExecOutput('git', ['rev-parse', '--symbolic-full-name', 'HEAD'], {
         silent: !core.isDebug()
@@ -30260,21 +30262,18 @@ async function getHeadRef() {
     }
     return stdout.trim().slice('refs/heads/'.length);
 }
-exports.getHeadRef = getHeadRef;
 async function getHeadSha() {
     const { stdout } = await exec.getExecOutput('git', ['rev-parse', 'HEAD'], {
         silent: !core.isDebug()
     });
     return stdout.trim();
 }
-exports.getHeadSha = getHeadSha;
 async function getHeadTreeHash() {
     const { stdout } = await exec.getExecOutput('git', ['log', '-1', '--format=%T', 'HEAD'], {
         silent: !core.isDebug()
     });
     return stdout.trim();
 }
-exports.getHeadTreeHash = getHeadTreeHash;
 
 
 /***/ }),
@@ -30308,7 +30307,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.populateTree = void 0;
+exports.populateTree = populateTree;
+exports.run = run;
 const fs = __importStar(__nccwpck_require__(7561));
 const path = __importStar(__nccwpck_require__(9411));
 const core = __importStar(__nccwpck_require__(2186));
@@ -30353,7 +30353,6 @@ async function populateTree() {
         }
     });
 }
-exports.populateTree = populateTree;
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
@@ -30434,7 +30433,6 @@ async function run() {
         core.setFailed(error instanceof Error ? error.message : JSON.stringify(error));
     }
 }
-exports.run = run;
 
 
 /***/ }),
