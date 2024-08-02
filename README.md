@@ -10,7 +10,7 @@
 ### Authentication
 
 This action requires a GitHub app installation token. An authentication token for
-the app can be easily generated in the GitHub actions workflow using
+the app can be easily generated in the GitHub Actions workflow using
 [`electron/github-app-auth-action`](https://github.com/electron/github-app-auth-action)
 . The app must have the "Contents" (read and write) permission and be installed on
 the repository.
@@ -23,7 +23,7 @@ instead of running `git commit`. The changes to commit will be detected automati
 ### Updating Existing Ref
 
 If you want to update an existing ref, you should ensure that ref is checked out in
-the current git checkout (you can use the `ref` input for `actions/checkout`). You
+the current Git checkout (you can use the `ref` input for `actions/checkout`). You
 can force the update using the `force` input.
 
 ### Multiple Commits
