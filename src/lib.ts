@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import path from 'node:path';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export async function getStagedFiles() {
@@ -62,4 +63,8 @@ export async function getHeadTreeHash(): Promise<string> {
   );
 
   return stdout.trim();
+}
+
+export function getPath(filename: string): string {
+  return path.join(process.cwd(), filename);
 }

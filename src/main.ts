@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 
 import * as core from '@actions/core';
 import * as github from '@actions/github';
@@ -7,7 +6,15 @@ import * as github from '@actions/github';
 import { RequestError } from '@octokit/request-error';
 import type { Endpoints } from '@octokit/types';
 
-import { getHeadRef, getHeadSha, getHeadTreeHash, getStagedFiles } from './lib';
+import detectCharacterEncoding from 'detect-character-encoding';
+
+import {
+  getHeadRef,
+  getHeadSha,
+  getHeadTreeHash,
+  getPath,
+  getStagedFiles
+} from './lib';
 
 export async function populateTree(): Promise<
   Endpoints['POST /repos/{owner}/{repo}/git/trees']['parameters']['tree']
@@ -47,7 +54,7 @@ export async function populateTree(): Promise<
           path: filename,
           mode,
           type: 'blob',
-          content: fs.readFileSync(path.join(process.cwd(), filename), 'utf-8')
+          content: getPath(filename)
         };
       }
     }
@@ -69,9 +76,9 @@ export async function run(): Promise<void> {
     const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
     const force = core.getBooleanInput('force');
 
-    const tree = await populateTree();
+    const initialTree = await populateTree();
 
-    if (tree.length === 0) {
+    if (initialTree.length === 0) {
       if (failOnNoChanges) {
         core.setFailed('No changes found to commit');
       } else {
@@ -83,6 +90,27 @@ export async function run(): Promise<void> {
     const owner = github.context.repo.owner;
     const repo = github.context.repo.repo;
     const octokit = github.getOctokit(token, { log: console });
+
+    // Upload file contents as blobs and update the tree with the returned SHAs, to handle base64-encoding of binary files
+    const tree = await Promise.all(
+      initialTree.map(async item => {
+        if (item.content) {
+          const buffer = fs.readFileSync(item.content);
+          const detectedEncoding = detectCharacterEncoding(buffer).encoding;
+          const encoding = detectedEncoding === 'UTF-8' ? 'utf8' : 'base64';
+          const content = buffer.toString(encoding);
+          const blob = await octokit.rest.git.createBlob({
+            owner,
+            repo,
+            content,
+            encoding
+          });
+          core.debug(`File SHA: ${item.path} ${blob.data.sha}`);
+          return { ...item, content: undefined, sha: blob.data.sha };
+        }
+        return item;
+      })
+    );
 
     const newTree = await octokit.rest.git.createTree({
       owner,

@@ -9,6 +9,7 @@ import * as lib from '../src/lib';
 import * as main from '../src/main';
 import { mockGetBooleanInput, mockGetInput } from './utils';
 
+const createBlob = vi.fn();
 const createCommit = vi.fn();
 const createRef = vi.fn();
 const createTree = vi.fn();
@@ -27,6 +28,7 @@ vi.mock('@actions/github', () => {
     getOctokit: vi.fn(() => ({
       rest: {
         git: {
+          createBlob,
           createCommit,
           createRef,
           createTree,
@@ -192,7 +194,12 @@ describe('action', () => {
     vi.mocked(lib.getHeadRef).mockResolvedValue(ref);
     vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
     vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getPath).mockReturnValue('/path/to/file');
     vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      Buffer.from('test-file-contents')
+    );
+    vi.mocked(createBlob).mockResolvedValue({ data: { sha: 'file-sha' } });
     vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
     vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
     vi.mocked(updateRef).mockResolvedValue({ data: {} });
@@ -201,6 +208,7 @@ describe('action', () => {
     expect(runSpy).toHaveReturned();
 
     expect(lib.getHeadRef).toHaveBeenCalled();
+    expect(createBlob).toHaveBeenCalled();
     expect(updateRef).toHaveBeenCalled();
     expect(createRef).not.toHaveBeenCalled();
 
@@ -219,7 +227,12 @@ describe('action', () => {
     vi.mocked(lib.getHeadRef).mockResolvedValue('main');
     vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
     vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getPath).mockReturnValue('/path/to/file');
     vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      Buffer.from('test-file-contents')
+    );
+    vi.mocked(createBlob).mockResolvedValue({ data: { sha: 'file-sha' } });
     vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
     vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
     vi.mocked(updateRef).mockRejectedValue(
@@ -233,6 +246,7 @@ describe('action', () => {
     expect(runSpy).toHaveReturned();
 
     expect(lib.getHeadRef).not.toHaveBeenCalled();
+    expect(createBlob).toHaveBeenCalled();
     expect(updateRef).toHaveBeenCalledWith(
       expect.objectContaining({
         sha: commitSha,
@@ -391,7 +405,7 @@ describe('populateTree', () => {
         sha: 'e69de29bb2d1d6434b8b29ae775ad8c2e48c5391'
       }
     ]);
-    vi.mocked(fs.readFileSync).mockReturnValue(content);
+    vi.mocked(lib.getPath).mockReturnValue(content);
 
     await expect(main.populateTree()).resolves.toStrictEqual([
       {
@@ -443,7 +457,7 @@ describe('populateTree', () => {
         sha: '6fa2e97fe3873cd173ba0428b1d14d307242b0ca'
       }
     ]);
-    vi.mocked(fs.readFileSync).mockReturnValue(content);
+    vi.mocked(lib.getPath).mockReturnValue(content);
 
     await expect(main.populateTree()).resolves.toStrictEqual([
       {
@@ -479,7 +493,7 @@ describe('populateTree', () => {
         sha
       }
     ]);
-    expect(fs.readFileSync).not.toHaveBeenCalled();
+    expect(lib.getPath).not.toHaveBeenCalled();
   });
 
   it('errors on unexpected mode for deleted file', async () => {
