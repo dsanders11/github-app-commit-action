@@ -42,10 +42,14 @@ jobs:
         run: |
           date > current-date.txt
           echo 'foobar' > README.md
+          curl -o git-logo.png https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png
+          GIT_LOGO_SHA=$(git hash-object -t blob git-logo.png)
+          mv git-logo.png "git-logo-${GIT_LOGO_SHA}.png"
           git add current-date.txt
           git add README.md
           git rm LICENSE
           git add --chmod=+x src/lib.ts
+          git add "git-logo-${GIT_LOGO_SHA}.png"
 
       - name: Commit to new ref
         uses: ./
@@ -79,6 +83,18 @@ jobs:
               assert.strictEqual(data.sha, '${{ steps.commit-new-ref.outputs.sha }}', 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
+
+              const { data: { tree } } = await github.rest.git.getTree({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tree_sha: ref,
+              });
+
+              const filenameRegex = /git-logo-(\S+).png/;
+              const { path, sha } = tree.find(({ path }) => filenameRegex.test(path));
+              const [, expectedSha] = path.match(filenameRegex);
+
+              assert.strictEqual(sha, expectedSha, 'Expected SHA for Git logo PNG to match');
             }
 
       - name: Update checkout
