@@ -9,9 +9,12 @@ import type { Endpoints } from '@octokit/types';
 
 import { getHeadRef, getHeadSha, getHeadTreeHash, getStagedFiles } from './lib';
 
-export async function populateTree(): Promise<
-  Endpoints['POST /repos/{owner}/{repo}/git/trees']['parameters']['tree']
-> {
+type GitHubGitTreeType =
+  Endpoints['POST /repos/{owner}/{repo}/git/trees']['parameters']['tree'];
+type GitTreeItem = Omit<GitHubGitTreeType[0], 'content'> & { content?: Buffer };
+type GitTree = GitTreeItem[];
+
+export async function populateTree(): Promise<GitTree> {
   return (await getStagedFiles()).map(
     ({ oldMode, mode, oldSha, sha, change, filename }) => {
       if (change === 'D') {
@@ -47,7 +50,7 @@ export async function populateTree(): Promise<
           path: filename,
           mode,
           type: 'blob',
-          content: fs.readFileSync(path.join(process.cwd(), filename), 'utf-8')
+          content: fs.readFileSync(path.join(process.cwd(), filename))
         };
       }
     }
@@ -84,10 +87,26 @@ export async function run(): Promise<void> {
     const repo = github.context.repo.repo;
     const octokit = github.getOctokit(token, { log: console });
 
+    // Upload file contents as blobs and update the tree with the returned SHAs
+    for (const item of tree) {
+      if (item.content) {
+        const blob = await octokit.rest.git.createBlob({
+          owner,
+          repo,
+          content: item.content.toString('base64'),
+          encoding: 'base64'
+        });
+
+        item.content = undefined;
+        item.sha = blob.data.sha;
+        core.debug(`File SHA: ${item.path} ${blob.data.sha}`);
+      }
+    }
+
     const newTree = await octokit.rest.git.createTree({
       owner,
       repo,
-      tree,
+      tree: tree as GitHubGitTreeType,
       base_tree: await getHeadTreeHash()
     });
     core.debug(`New tree SHA: ${newTree.data.sha}`);
