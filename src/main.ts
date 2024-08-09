@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import * as process from 'node:process';
 
 import * as core from '@actions/core';
 import * as github from '@actions/github';
@@ -71,6 +72,12 @@ export async function run(): Promise<void> {
     const ref = core.getInput('ref') || (await getHeadRef());
     const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
     const force = core.getBooleanInput('force');
+    const owner = core.getInput('owner') || github.context.repo.owner;
+    const repo = core.getInput('repository') || github.context.repo.repo;
+    const workingDirectory =
+      core.getInput('working-directory') || process.cwd();
+
+    process.chdir(workingDirectory);
 
     const tree = await populateTree();
 
@@ -83,8 +90,6 @@ export async function run(): Promise<void> {
       return;
     }
 
-    const owner = github.context.repo.owner;
-    const repo = github.context.repo.repo;
     const octokit = github.getOctokit(token, { log: console });
 
     // Upload file contents as blobs and update the tree with the returned SHAs
