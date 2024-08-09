@@ -24,6 +24,15 @@ inputs:
   token:
     description: The GitHub app installation token
     required: true
+  owner:
+    description: The owner of the GitHub repo, defaults to the owner of the repository this action is running in
+    required: false
+  repository:
+    description: The GitHub repository to commit to, defaults to the repository this action is running in
+    required: false
+  working-directory:
+    description: The working directory, defaults to the current working directory
+    required: false
 
 outputs:
   message:
