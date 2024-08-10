@@ -63,7 +63,7 @@ jobs:
 - `fail-on-no-changes` - *(optional)* Whether or not to set action failure if there are no changes to commit (default: `true`)
 - `force` - *(optional)* Whether to force the update or to make sure the update is a fast-forward update when updating an existing ref (default: `false`)
 - `message` - **(required)** The commit message
-- `owner` - *(optional)* The owner of the GitHub repo. Defaults to the owner of the repository this action is running in.
+- `owner` - *(optional)* The owner of the GitHub repository. Defaults to the owner of the repository this action is running in.
 - `ref` - *(optional)* Git reference to associate the commit with (e.g. `main`). If it does not exist it will be created. Defaults to the the current checkout ref.
 - `repository` - *(optional)* The GitHub repository to commit to. Defaults to the repository this action is running in.
 - `token` - **(required)** GitHub App installation access token
