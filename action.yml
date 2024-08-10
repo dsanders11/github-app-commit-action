@@ -18,18 +18,18 @@ inputs:
   message:
     description: The commit message
     required: true
-  ref:
-    description: Git reference to associate the commit with (e.g. `main`). If it does not exist it will be created. Defaults to the the current checkout ref.
-    required: false
-  token:
-    description: The GitHub app installation token
-    required: true
   owner:
     description: The owner of the GitHub repo, defaults to the owner of the repository this action is running in
+    required: false
+  ref:
+    description: Git reference to associate the commit with (e.g. `main`). If it does not exist it will be created. Defaults to the the current checkout ref.
     required: false
   repository:
     description: The GitHub repository to commit to, defaults to the repository this action is running in
     required: false
+  token:
+    description: The GitHub app installation token
+    required: true
   working-directory:
     description: The working directory, defaults to the current working directory
     required: false
