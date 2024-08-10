@@ -74,10 +74,11 @@ export async function run(): Promise<void> {
     const force = core.getBooleanInput('force');
     const owner = core.getInput('owner') || github.context.repo.owner;
     const repo = core.getInput('repository') || github.context.repo.repo;
-    const workingDirectory =
-      core.getInput('working-directory') || process.cwd();
+    const workingDirectory = core.getInput('working-directory');
 
-    process.chdir(workingDirectory);
+    if (workingDirectory) {
+      process.chdir(workingDirectory);
+    }
 
     const tree = await populateTree();
 
