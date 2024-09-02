@@ -5,5 +5,5 @@
     "@semantic-release/github",
     "semantic-release-major-tag"
   ],
-  "branches": [ "main" ]
+  "branches": ["main"]
 }
