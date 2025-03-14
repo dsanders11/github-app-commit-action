@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as process from 'node:process';
+import { inspect } from 'node:util';
 
 import * as core from '@actions/core';
 import * as github from '@actions/github';
@@ -69,12 +70,24 @@ export async function run(): Promise<void> {
     const token = core.getInput('token', { required: true });
 
     // Optional inputs
+    const authorEmail = core.getInput('author-email');
+    const authorName = core.getInput('author-name');
     const ref = core.getInput('ref') || (await getHeadRef());
     const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
     const force = core.getBooleanInput('force');
     const owner = core.getInput('owner') || github.context.repo.owner;
     const repo = core.getInput('repository') || github.context.repo.repo;
     const workingDirectory = core.getInput('working-directory');
+
+    if (authorEmail && !authorName) {
+      core.setFailed('Input required and not supplied: author-name');
+      return;
+    }
+
+    if (!authorEmail && authorName) {
+      core.setFailed('Input required and not supplied: author-email');
+      return;
+    }
 
     if (workingDirectory) {
       process.chdir(workingDirectory);
@@ -117,13 +130,28 @@ export async function run(): Promise<void> {
     });
     core.debug(`New tree SHA: ${newTree.data.sha}`);
 
-    const newCommit = await octokit.rest.git.createCommit({
+    core.debug(`Creating commit with committer: ${process.env.GIT_COMMITTER_NAME} <${process.env.GIT_COMMITTER_EMAIL}>`);
+
+    const createCommitParams: Endpoints['POST /repos/{owner}/{repo}/git/commits']['parameters'] = {
       owner,
       repo,
+      // committer: {
+      //   name: process.env.GIT_COMMITTER_NAME,
+      //   email: process.env.GIT_COMMITTER_EMAIL
+      // },
       parents: [await getHeadSha()],
       message,
       tree: newTree.data.sha
-    });
+    };
+    // if (authorEmail && authorName) {
+    //   core.debug(`Creating commit with author: ${authorName} <${authorEmail}>`);
+    //   createCommitParams.author = {
+    //     name: authorName,
+    //     email: authorEmail
+    //   };
+    // }
+    const newCommit = await octokit.rest.git.createCommit(createCommitParams);
+    core.debug(`New commit author: ${newCommit.data.author?.email}`);
     core.debug(`New commit SHA: ${newCommit.data.sha}`);
 
     try {
@@ -160,6 +188,7 @@ export async function run(): Promise<void> {
     core.setOutput('sha', newCommit.data.sha);
   } catch (error) {
     // Fail the workflow run if an error occurs
+    core.debug(inspect(error));
     if (error instanceof Error && error.stack) core.debug(error.stack);
     core.setFailed(
       error instanceof Error ? error.message : JSON.stringify(error)

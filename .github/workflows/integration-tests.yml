@@ -37,6 +37,7 @@ jobs:
         id: generate-token
         with:
           creds: ${{ secrets.GH_APP_CREDS }}
+          export-git-user: true
 
       - name: Make changes to commit and stage them
         run: |
@@ -55,6 +56,8 @@ jobs:
         uses: ./
         id: commit-new-ref
         with:
+          author-email: 161413468+gh-app-commit-action-integration[bot]@users.noreply.github.com
+          author-name: gh-app-commit-action-integration[bot]
           message: Test new ref commit
           ref: integration-test-playground-${{ github.run_id }}-${{ github.run_number }}
           token: ${{ steps.generate-token.outputs.token }}

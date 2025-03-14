@@ -7,6 +7,12 @@ branding:
   color: green
 
 inputs:
+  author-email:
+    description: The email address to use for the commit author
+    required: false
+  author-name:
+    description: The name to use for the commit author
+    required: false
   fail-on-no-changes:
     description: Whether or not to set action failure if there are no changes to commit
     required: false
