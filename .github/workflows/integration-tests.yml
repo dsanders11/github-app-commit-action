@@ -60,7 +60,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - name: Confirm new ref commit
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
@@ -120,7 +120,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - name: Confirm existing ref commit
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
@@ -162,7 +162,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - name: Confirm existing ref commit
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
@@ -219,7 +219,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - name: Confirm forced commit
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
@@ -245,7 +245,7 @@ jobs:
             }
 
       - name: Clean up new ref
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         if: ${{ always() && steps.generate-token.outputs.token }}
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
