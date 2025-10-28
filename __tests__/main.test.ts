@@ -342,6 +342,123 @@ describe('action', () => {
     expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
 
+  it('uses commit-body to create multi-line commit message', async () => {
+    const commitBody = 'This is the body\nwith multiple lines';
+    const commitSha = 'commit-sha';
+
+    mockGetInput({ message, token, 'commit-body': commitBody });
+    mockGetBooleanInput({});
+    vi.mocked(lib.getHeadRef).mockResolvedValue('main');
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockResolvedValue({ data: {} });
+
+    await main.run();
+    expect(runSpy).toHaveReturned();
+
+    expect(createCommit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: `${message}\n\n${commitBody}`
+      })
+    );
+
+    expect(core.setOutput).toHaveBeenCalledWith(
+      'message',
+      `${message}\n\n${commitBody}`
+    );
+  });
+
+  it('uses commit-author with valid format', async () => {
+    const commitAuthor = 'John Doe <john@example.com>';
+    const commitSha = 'commit-sha';
+
+    mockGetInput({ message, token, 'commit-author': commitAuthor });
+    mockGetBooleanInput({});
+    vi.mocked(lib.getHeadRef).mockResolvedValue('main');
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockResolvedValue({ data: {} });
+
+    await main.run();
+    expect(runSpy).toHaveReturned();
+
+    expect(createCommit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        author: {
+          name: 'John Doe',
+          email: 'john@example.com'
+        }
+      })
+    );
+  });
+
+  it('warns and ignores invalid commit-author format', async () => {
+    const commitAuthor = 'invalid-format';
+    const commitSha = 'commit-sha';
+
+    mockGetInput({ message, token, 'commit-author': commitAuthor });
+    mockGetBooleanInput({});
+    vi.mocked(lib.getHeadRef).mockResolvedValue('main');
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockResolvedValue({ data: {} });
+
+    await main.run();
+    expect(runSpy).toHaveReturned();
+
+    expect(core.warning).toHaveBeenCalledWith(
+      'Invalid commit-author format: "invalid-format". Expected format: "Name <email>". Ignoring author.'
+    );
+    expect(createCommit).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        author: expect.anything()
+      })
+    );
+  });
+
+  it('uses both commit-body and commit-author together', async () => {
+    const commitBody = 'Body text here';
+    const commitAuthor = 'Jane Smith <jane@example.com>';
+    const commitSha = 'commit-sha';
+
+    mockGetInput({
+      message,
+      token,
+      'commit-body': commitBody,
+      'commit-author': commitAuthor
+    });
+    mockGetBooleanInput({});
+    vi.mocked(lib.getHeadRef).mockResolvedValue('main');
+    vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
+    vi.mocked(lib.getHeadTreeHash).mockResolvedValue('head-tree-hash');
+    vi.mocked(lib.getStagedFiles).mockResolvedValue(stagedFiles);
+    vi.mocked(createTree).mockResolvedValue({ data: { sha: 'tree-sha' } });
+    vi.mocked(createCommit).mockResolvedValue({ data: { sha: commitSha } });
+    vi.mocked(updateRef).mockResolvedValue({ data: {} });
+
+    await main.run();
+    expect(runSpy).toHaveReturned();
+
+    expect(createCommit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: `${message}\n\n${commitBody}`,
+        author: {
+          name: 'Jane Smith',
+          email: 'jane@example.com'
+        }
+      })
+    );
+  });
+
   it('handles generic errors', async () => {
     mockGetInput({ message, token });
     vi.mocked(lib.getStagedFiles).mockImplementation(() => {
