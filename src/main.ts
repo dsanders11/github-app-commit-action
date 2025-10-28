@@ -75,6 +75,8 @@ export async function run(): Promise<void> {
     const owner = core.getInput('owner') || github.context.repo.owner;
     const repo = core.getInput('repository') || github.context.repo.repo;
     const workingDirectory = core.getInput('working-directory');
+    const commitBody = core.getInput('commit-body');
+    const commitAuthor = core.getInput('commit-author');
 
     if (workingDirectory) {
       process.chdir(workingDirectory);
@@ -117,12 +119,32 @@ export async function run(): Promise<void> {
     });
     core.debug(`New tree SHA: ${newTree.data.sha}`);
 
+    // Build full commit message with optional body
+    const fullMessage = commitBody ? `${message}\n\n${commitBody}` : message;
+
+    // Parse optional commit author
+    let author: { name: string; email: string } | undefined;
+    if (commitAuthor) {
+      const authorMatch = commitAuthor.match(/^(.+?)\s*<(.+?)>$/);
+      if (authorMatch) {
+        author = {
+          name: authorMatch[1].trim(),
+          email: authorMatch[2].trim()
+        };
+      } else {
+        core.warning(
+          `Invalid commit-author format: "${commitAuthor}". Expected format: "Name <email>". Ignoring author.`
+        );
+      }
+    }
+
     const newCommit = await octokit.rest.git.createCommit({
       owner,
       repo,
       parents: [await getHeadSha()],
-      message,
-      tree: newTree.data.sha
+      message: fullMessage,
+      tree: newTree.data.sha,
+      ...(author && { author })
     });
     core.debug(`New commit SHA: ${newCommit.data.sha}`);
 
@@ -155,7 +177,7 @@ export async function run(): Promise<void> {
       }
     }
 
-    core.setOutput('message', message);
+    core.setOutput('message', fullMessage);
     core.setOutput('ref', ref);
     core.setOutput('sha', newCommit.data.sha);
   } catch (error) {
