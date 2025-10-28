@@ -15,6 +15,12 @@ inputs:
     description: Whether to force the update or to make sure the update is a fast-forward update when updating an existing ref
     required: false
     default: false
+  commit-author:
+    description: 'Optional commit author in format "Name <email>"'
+    required: false
+  commit-body:
+    description: Optional commit message body (will be separated from message by blank line)
+    required: false
   message:
     description: The commit message
     required: true
