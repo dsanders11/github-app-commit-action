@@ -75,7 +75,6 @@ export async function run(): Promise<void> {
     const owner = core.getInput('owner') || github.context.repo.owner;
     const repo = core.getInput('repository') || github.context.repo.repo;
     const workingDirectory = core.getInput('working-directory');
-    const commitBody = core.getInput('commit-body');
     const commitAuthor = core.getInput('commit-author');
 
     if (workingDirectory) {
@@ -119,9 +118,6 @@ export async function run(): Promise<void> {
     });
     core.debug(`New tree SHA: ${newTree.data.sha}`);
 
-    // Build full commit message with optional body
-    const fullMessage = commitBody ? `${message}\n\n${commitBody}` : message;
-
     // Parse optional commit author
     let author: { name: string; email: string } | undefined;
     if (commitAuthor) {
@@ -142,7 +138,7 @@ export async function run(): Promise<void> {
       owner,
       repo,
       parents: [await getHeadSha()],
-      message: fullMessage,
+      message,
       tree: newTree.data.sha,
       ...(author && { author })
     });
@@ -177,7 +173,7 @@ export async function run(): Promise<void> {
       }
     }
 
-    core.setOutput('message', fullMessage);
+    core.setOutput('message', message);
     core.setOutput('ref', ref);
     core.setOutput('sha', newCommit.data.sha);
   } catch (error) {

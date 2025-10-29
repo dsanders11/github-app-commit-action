@@ -342,11 +342,12 @@ describe('action', () => {
     expect(core.setOutput).toHaveBeenCalledWith('sha', commitSha);
   });
 
-  it('uses commit-body to create multi-line commit message', async () => {
-    const commitBody = 'This is the body\nwith multiple lines';
+  it('uses multi-line message for commit', async () => {
+    const multiLineMessage =
+      'feat: add new feature\n\nThis is the body\nwith multiple lines';
     const commitSha = 'commit-sha';
 
-    mockGetInput({ message, token, 'commit-body': commitBody });
+    mockGetInput({ message: multiLineMessage, token });
     mockGetBooleanInput({});
     vi.mocked(lib.getHeadRef).mockResolvedValue('main');
     vi.mocked(lib.getHeadSha).mockResolvedValue('head-sha');
@@ -361,14 +362,11 @@ describe('action', () => {
 
     expect(createCommit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: `${message}\n\n${commitBody}`
+        message: multiLineMessage
       })
     );
 
-    expect(core.setOutput).toHaveBeenCalledWith(
-      'message',
-      `${message}\n\n${commitBody}`
-    );
+    expect(core.setOutput).toHaveBeenCalledWith('message', multiLineMessage);
   });
 
   it('uses commit-author with valid format', async () => {
@@ -425,15 +423,14 @@ describe('action', () => {
     );
   });
 
-  it('uses both commit-body and commit-author together', async () => {
-    const commitBody = 'Body text here';
+  it('uses multi-line message with commit-author', async () => {
+    const multiLineMessage = 'feat: add feature\n\nBody text here';
     const commitAuthor = 'Jane Smith <jane@example.com>';
     const commitSha = 'commit-sha';
 
     mockGetInput({
-      message,
+      message: multiLineMessage,
       token,
-      'commit-body': commitBody,
       'commit-author': commitAuthor
     });
     mockGetBooleanInput({});
@@ -450,7 +447,7 @@ describe('action', () => {
 
     expect(createCommit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: `${message}\n\n${commitBody}`,
+        message: multiLineMessage,
         author: {
           name: 'Jane Smith',
           email: 'jane@example.com'
