@@ -211,7 +211,7 @@ jobs:
       - name: Switch back to base branch
         env:
           BRANCH: ${{ steps.branch-name.outputs.BRANCH }}
-        run: git switch $BRANCH
+        run: git switch "$BRANCH"
 
       - name: Make changes to commit and stage them
         run: |
