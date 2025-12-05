@@ -6,6 +6,9 @@ on:
     branches:
       - main
   workflow_call:
+    secrets:
+      GH_APP_CREDS:
+        required: true
   schedule:
     - cron: '0 22 * * 2'
 
