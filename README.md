@@ -61,8 +61,26 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 ```
 
+#### With multi-line message and custom author
+
+```yaml
+- name: Commit with details
+  uses: dsanders11/github-app-commit-action@v1
+  with:
+    message: |
+      feat: add new feature
+
+      This change adds support for the new API.
+
+      Closes #123
+    commit-author: 'Bot User <bot@example.com>'
+    token: ${{ steps.generate-token.outputs.token }}
+```
+
 ### Inputs
 
+- `commit-author` - _(optional)_ Commit author in format "Name &lt;email&gt;".
+  If not provided, the commit will be authored by the GitHub App.
 - `fail-on-no-changes` - _(optional)_ Whether or not to set action failure if
   there are no changes to commit (default: `true`)
 - `force` - _(optional)_ Whether to force the update or to make sure the update
