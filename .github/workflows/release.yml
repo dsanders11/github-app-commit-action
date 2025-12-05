@@ -1,31 +1,36 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: ['Integration Tests']
+  push:
     branches:
       - main
-      - 'releases/*'
-    types: 
-      - completed
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: write
+    secrets:
+      GH_APP_CREDS: ${{ secrets.GH_APP_CREDS }}
+
   release:
     name: release
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: ci
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
       - name: Setup Node.js
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: 20
+          package-cache-manager: false
       - run: npm install --save-dev semantic-release-major-tag
       - run: npx semantic-release
         env:
