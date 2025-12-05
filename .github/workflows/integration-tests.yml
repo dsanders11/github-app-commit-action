@@ -1,19 +1,10 @@
 name: Integration Tests
 
 on:
+  workflow_call:
   workflow_dispatch:
-  workflow_run:
-    workflows: ['CI']
-    branches:
-      - main
-      - 'releases/*'
-    types: 
-      - completed
-  schedule:
-    - cron: '0 22 * * 3'
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   integration-tests:
@@ -21,12 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
 
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
 
       - name: Make note of the branch name
         id: branch-name
@@ -61,13 +53,18 @@ jobs:
 
       - name: Confirm new ref commit
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          MESSAGE: ${{ steps.commit-new-ref.outputs.message }}
+          REF: ${{ steps.commit-new-ref.outputs.ref }}
+          REF_OPERATION: ${{ steps.commit-new-ref.outputs.ref-operation }}
+          SHA: ${{ steps.commit-new-ref.outputs.sha }}
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const assert = require('node:assert');
 
             const message = 'Test new ref commit';
-            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.commit-new-ref.outputs.sha }}'];
+            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', process.env.SHA];
 
             // Fetch the commit by both ref and sha
             for (const ref of refs) {
@@ -77,10 +74,10 @@ jobs:
                 ref,
               });
 
-              assert.strictEqual('${{ steps.commit-new-ref.outputs.message }}', message, 'Expected correct message output');
-              assert.strictEqual('${{ steps.commit-new-ref.outputs.ref }}', refs[0], 'Expected correct ref output');
-              assert.strictEqual('${{ steps.commit-new-ref.outputs.ref-operation }}', 'created', 'Expected correct ref operation');
-              assert.strictEqual(data.sha, '${{ steps.commit-new-ref.outputs.sha }}', 'Expected sha for commit to match');
+              assert.strictEqual(process.env.MESSAGE, message, 'Expected correct message output');
+              assert.strictEqual(process.env.REF, refs[0], 'Expected correct ref output');
+              assert.strictEqual(process.env.REF_OPERATION, 'created', 'Expected correct ref operation');
+              assert.strictEqual(data.sha, process.env.SHA, 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
 
@@ -121,13 +118,18 @@ jobs:
 
       - name: Confirm existing ref commit
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          MESSAGE: ${{ steps.update-existing-ref.outputs.message }}
+          REF: ${{ steps.update-existing-ref.outputs.ref }}
+          REF_OPERATION: ${{ steps.update-existing-ref.outputs.ref-operation }}
+          SHA: ${{ steps.update-existing-ref.outputs.sha }}
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const assert = require('node:assert');
 
             const message = 'Test updating existing ref';
-            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.update-existing-ref.outputs.sha }}'];
+            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', process.env.SHA];
 
             // Fetch the commit by both ref and sha
             for (const ref of refs) {
@@ -137,10 +139,10 @@ jobs:
                 ref,
               });
 
-              assert.strictEqual('${{ steps.update-existing-ref.outputs.message }}', message, 'Expected correct message output');
-              assert.strictEqual('${{ steps.update-existing-ref.outputs.ref }}', refs[0], 'Expected correct ref output');
-              assert.strictEqual('${{ steps.update-existing-ref.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
-              assert.strictEqual(data.sha, '${{ steps.update-existing-ref.outputs.sha }}', 'Expected sha for commit to match');
+              assert.strictEqual(process.env.MESSAGE, message, 'Expected correct message output');
+              assert.strictEqual(process.env.REF, refs[0], 'Expected correct ref output');
+              assert.strictEqual(process.env.REF_OPERATION, 'updated', 'Expected correct ref operation');
+              assert.strictEqual(data.sha, process.env.SHA, 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
             }
@@ -163,13 +165,18 @@ jobs:
 
       - name: Confirm existing ref commit
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          MESSAGE: ${{ steps.update-existing-ref-2.outputs.message }}
+          REF: ${{ steps.update-existing-ref-2.outputs.ref }}
+          REF_OPERATION: ${{ steps.update-existing-ref-2.outputs.ref-operation }}
+          SHA: ${{ steps.update-existing-ref-2.outputs.sha }}
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const assert = require('node:assert');
 
             const message = 'Test updating existing ref (again)';
-            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.update-existing-ref-2.outputs.sha }}'];
+            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', process.env.SHA];
 
             // Fetch the commit by both ref and sha
             for (const ref of refs) {
@@ -179,10 +186,10 @@ jobs:
                 ref,
               });
 
-              assert.strictEqual('${{ steps.update-existing-ref-2.outputs.message }}', message, 'Expected correct message output');
-              assert.strictEqual('${{ steps.update-existing-ref-2.outputs.ref }}', refs[0], 'Expected correct ref output');
-              assert.strictEqual('${{ steps.update-existing-ref-2.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
-              assert.strictEqual(data.sha, '${{ steps.update-existing-ref-2.outputs.sha }}', 'Expected sha for commit to match');
+              assert.strictEqual(process.env.MESSAGE, message, 'Expected correct message output');
+              assert.strictEqual(process.env.REF, refs[0], 'Expected correct ref output');
+              assert.strictEqual(process.env.REF_OPERATION, 'updated', 'Expected correct ref operation');
+              assert.strictEqual(data.sha, process.env.SHA, 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
             }
@@ -202,7 +209,9 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - name: Switch back to base branch
-        run: git switch ${{ steps.branch-name.outputs.BRANCH }}
+        env:
+          BRANCH: ${{ steps.branch-name.outputs.BRANCH }}
+        run: git switch $BRANCH
 
       - name: Make changes to commit and stage them
         run: |
@@ -220,13 +229,18 @@ jobs:
 
       - name: Confirm forced commit
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          MESSAGE: ${{ steps.force-update-existing-ref.outputs.message }}
+          REF: ${{ steps.force-update-existing-ref.outputs.ref }}
+          REF_OPERATION: ${{ steps.force-update-existing-ref.outputs.ref-operation }}
+          SHA: ${{ steps.force-update-existing-ref.outputs.sha }}
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const assert = require('node:assert');
 
             const message = 'Test updating existing ref (force)';
-            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', '${{ steps.force-update-existing-ref.outputs.sha }}'];
+            const refs = ['integration-test-playground-${{ github.run_id }}-${{ github.run_number }}', process.env.SHA];
 
             // Fetch the commit by both ref and sha
             for (const ref of refs) {
@@ -236,10 +250,10 @@ jobs:
                 ref,
               });
 
-              assert.strictEqual('${{ steps.force-update-existing-ref.outputs.message }}', message, 'Expected correct message output');
-              assert.strictEqual('${{ steps.force-update-existing-ref.outputs.ref }}', refs[0], 'Expected correct ref output');
-              assert.strictEqual('${{ steps.force-update-existing-ref.outputs.ref-operation }}', 'updated', 'Expected correct ref operation');
-              assert.strictEqual(data.sha, '${{ steps.force-update-existing-ref.outputs.sha }}', 'Expected sha for commit to match');
+              assert.strictEqual(process.env.MESSAGE, message, 'Expected correct message output');
+              assert.strictEqual(process.env.REF, refs[0], 'Expected correct ref output');
+              assert.strictEqual(process.env.REF_OPERATION, 'updated', 'Expected correct ref operation');
+              assert.strictEqual(data.sha, process.env.SHA, 'Expected sha for commit to match');
               assert.strictEqual(data.commit.message, message, 'Expected commit message to match');
               assert.strictEqual(data.commit.verification.verified, true, 'Expected commit to be verified');
             }
