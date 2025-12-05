@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
-import * as lib from '../src/lib';
+import * as lib from '../src/lib.js';
 
 vi.mock('@actions/core');
 vi.mock('@actions/exec');
