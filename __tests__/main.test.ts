@@ -5,9 +5,9 @@ import * as fs from 'node:fs';
 import * as core from '@actions/core';
 import { RequestError } from '@octokit/request-error';
 
-import * as lib from '../src/lib';
-import * as main from '../src/main';
-import { mockGetBooleanInput, mockGetInput } from './utils';
+import * as lib from '../src/lib.js';
+import * as main from '../src/main.js';
+import { mockGetBooleanInput, mockGetInput } from './utils.js';
 
 const createCommit = vi.fn();
 const createRef = vi.fn();
