@@ -12,6 +12,7 @@
   "bugs": {
     "url": "https://github.com/dsanders11/github-app-commit-action/issues"
   },
+  "type": "module",
   "exports": {
     ".": "./dist/index.js"
   },
