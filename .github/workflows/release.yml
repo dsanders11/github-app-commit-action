@@ -30,7 +30,7 @@ jobs:
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
-          package-cache-manager: false
+          package-manager-cache: false
       - run: npm install --save-dev semantic-release-major-tag
       - run: npx semantic-release
         env:
