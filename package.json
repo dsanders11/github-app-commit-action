@@ -33,21 +33,21 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.10.1",
-    "@actions/exec": "^1.1.1",
-    "@actions/github": "^6.0.0",
-    "@octokit/request-error": "^5.1.0"
+    "@actions/core": "^3.0.0",
+    "@actions/exec": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "@octokit/request-error": "^7.1.0"
   },
   "devDependencies": {
     "@octokit/types": "^12.6.0",
     "@types/node": "^20.14.14",
-    "@vitest/coverage-v8": "^4.0.15",
-    "husky": "^9.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "husky": "^9.1.7",
     "oxfmt": "^0.38.0",
     "oxlint": "^1.53.0",
     "oxlint-tsgolint": "^0.16.0",
     "rolldown": "^1.0.0-rc.9",
-    "typescript": "^5.5.4",
-    "vitest": "^4.0.15"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }
