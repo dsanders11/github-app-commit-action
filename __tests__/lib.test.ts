@@ -121,7 +121,7 @@ describe('getHeadRef', () => {
       stderr: ''
     });
 
-    await expect(lib.getHeadRef()).rejects.toThrow();
+    await expect(lib.getHeadRef()).rejects.toThrow(/Unexpected output/);
   });
 
   it('is not silent in debug mode', async () => {
