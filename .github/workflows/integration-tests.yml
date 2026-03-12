@@ -108,7 +108,7 @@ jobs:
           echo 'baz' > README.md
           git add current-date.txt
           git add README.md
-          git rm .prettierignore
+          git rm .releaserc.json
           git add --chmod=+x src/main.ts
 
       - name: Update existing ref
