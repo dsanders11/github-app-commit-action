@@ -45,5 +45,5 @@ outputs:
     description: SHA for the commit
 
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
