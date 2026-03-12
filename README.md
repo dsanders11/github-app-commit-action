@@ -1,7 +1,7 @@
 # GitHub App Commit Action
 
 [![GitHub Super-Linter](https://github.com/dsanders11/github-app-commit-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-[![CI](https://github.com/dsanders11/github-app-commit-action/actions/workflows/ci.yml/badge.svg)](https://github.com/electron/github-app-auth-action/actions/workflows/ci.yml)
+[![CI](https://github.com/dsanders11/github-app-commit-action/actions/workflows/ci.yml/badge.svg)](https://github.com/dsanders11/github-app-commit-action/actions/workflows/ci.yml)
 
 > GitHub Action which makes it simple to make verified Git commits as a GitHub
 > app

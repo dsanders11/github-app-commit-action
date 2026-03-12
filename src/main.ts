@@ -8,7 +8,12 @@ import * as github from '@actions/github';
 import { RequestError } from '@octokit/request-error';
 import type { Endpoints } from '@octokit/types';
 
-import { getHeadRef, getHeadSha, getHeadTreeHash, getStagedFiles } from './lib';
+import {
+  getHeadRef,
+  getHeadSha,
+  getHeadTreeHash,
+  getStagedFiles
+} from './lib.js';
 
 type GitHubGitTreeType =
   Endpoints['POST /repos/{owner}/{repo}/git/trees']['parameters']['tree'];
