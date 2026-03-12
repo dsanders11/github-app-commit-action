@@ -359,7 +359,7 @@ describe('action', () => {
   it('stringifies non-errors', async () => {
     mockGetInput({ message, token });
     vi.mocked(lib.getStagedFiles).mockImplementation(() => {
-      throw 42; // eslint-disable-line no-throw-literal
+      throw 42; // oxlint-disable-line no-throw-literal
     });
 
     await main.run();
